@@ -14,20 +14,17 @@ scaler <- preProcess(MTN[, c("Open", "High", "Low", "Close")], method = "range")
 scaled_data <- predict(scaler, MTN[, c("Open", "High", "Low", "Close")])
 
 # Splitting the data into independent and dependent variables
-X <- as.matrix(scaled_data[, c("Open", "High", "Low")])
-X
-
+x <- as.matrix(scaled_data[, c("Open", "High", "Low")])
 y <- as.vector(scaled_data$Close)
-y
 
 # Splitting the data into training(80%) and testing sets(20%)
 set.seed(42)
 trainIndex <- createDataPartition(y, p = .8,list = FALSE, times = 1)
 
-X_train <- X[trainIndex, ]
+X_train <- x[trainIndex, ]
 X_train
 
-X_test <- X[-trainIndex, ]
+X_test <- x[-trainIndex, ]
 X_test
 
 y_train <- y[trainIndex]
@@ -68,8 +65,7 @@ rf_pred <- predict(rf_model, X_test)
 rf_pred
 
 # Inverse transform of the predictions to get actual values
-inverse_transform <- function(scaled_data, pred) {
-  temp <- as.data.frame(cbind(X_test, pred))
+inverse_transform <- function(scaled_data, pred) { temp <- as.data.frame(cbind(X_test, pred))
   colnames(temp) <- colnames(scaled_data)
   temp <- predict(scaler, temp, inverse = TRUE)
   return(temp$Close)
@@ -83,12 +79,7 @@ y_test_actual <- inverse_transform(scaled_data, y_test)
 
 
 #PLOTTING THE VARIOUS MODELS
-plot_data <- data.frame(Day = 1:length(y_test_actual),
-                        Actual = y_test_actual,
-                        KNN = kNN_pred_actual,
-                        SVM = svm_pred_actual,
-                        DT = dt_pred_actual,
-                        RF = rf_pred_actual)
+plot_data <- data.frame(Day = 1:length(y_test_actual),Actual = y_test_actual, KNN = kNN_pred_actual,SVM = svm_pred_actual,DT = dt_pred_actual,RF = rf_pred_actual)
 
 plot_data_long <- pivot_longer(plot_data, cols = c(Actual, KNN, SVM, DT, RF), 
                                names_to = "Model", values_to = "Close_Price")
